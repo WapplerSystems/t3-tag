@@ -1,0 +1,37 @@
+{
+	"name": "wapplersystems/tag",
+	"type": "typo3-cms-extension",
+	"description": "",
+	"keywords": [
+		"TYPO3",
+		"extension"
+	],
+	"homepage": "https://wappler.systems",
+	"authors": [
+		{
+			"name": "Sven Wappler",
+			"role": "Developer",
+			"homepage": "https://wappler.systems"
+		}
+	],
+	"license": [
+		"GPL-2.0+"
+	],
+	"require": {
+		"typo3/cms-core": "^12"
+	},
+	"suggest": {
+	},
+	"require-dev": {
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "tagging"
+		}
+	},
+	"autoload": {
+		"psr-4": {
+			"TYPO3\\CMS\\Core\\": "Classes/"
+		}
+	}
+}
