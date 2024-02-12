@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:tagging/Resources/Private/Language/locallang_tca.xlf" date="2011-10-17T20:22:34Z" product-name="lang">
+		<header/>
+		<body>
+			<trans-unit id="sys_tag" resname="sys_tag">
+				<source>Tag</source>
+			</trans-unit>
+			<trans-unit id="sys_tag.title" resname="sys_tag.title">
+				<source>Title</source>
+			</trans-unit>
+			<trans-unit id="sys_tag.description" resname="sys_tag.description">
+				<source>Description</source>
+			</trans-unit>
+			<trans-unit id="sys_tag.items" resname="sys_tag.items">
+				<source>Items</source>
+			</trans-unit>
+			<trans-unit id="sys_tag.tags" resname="sys_tag.tags">
+				<source>Tags</source>
+			</trans-unit>
+			<trans-unit id="sys_tag.tabs.tag" resname="sys_tag.tabs.tag">
+				<source>Tags</source>
+			</trans-unit>
+			<trans-unit id="sys_tag.tabs.items" resname="sys_tag.tabs.items">
+				<source>Items</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
