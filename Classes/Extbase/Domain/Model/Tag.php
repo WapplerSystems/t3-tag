@@ -36,12 +36,6 @@ class Tag extends AbstractEntity
     protected $description = '';
 
     /**
-     * @var Category|null
-     * @Extbase\ORM\Lazy
-     */
-    protected $parent;
-
-    /**
      * Gets the title.
      *
      * @return string the title, might be empty
@@ -81,26 +75,4 @@ class Tag extends AbstractEntity
         $this->description = $description;
     }
 
-    /**
-     * Gets the parent category.
-     *
-     * @return Category|null the parent category
-     */
-    public function getParent()
-    {
-        if ($this->parent instanceof LazyLoadingProxy) {
-            $this->parent->_loadRealInstance();
-        }
-        return $this->parent;
-    }
-
-    /**
-     * Sets the parent category.
-     *
-     * @param Category $parent the parent category
-     */
-    public function setParent(Category $parent)
-    {
-        $this->parent = $parent;
-    }
 }
