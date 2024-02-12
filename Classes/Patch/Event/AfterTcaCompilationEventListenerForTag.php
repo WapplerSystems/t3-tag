@@ -15,20 +15,20 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Core\Event;
+namespace WapplerSystens\Tag\Event;
 
 use TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use WapplerSystens\Tag\Preparations\TcaPreparationForTag;
 
 /**
  * Process request token.
  */
-final class AfterTcaCompilationEventListener
+final class AfterTcaCompilationEventListenerForTag
 {
     public function __invoke(AfterTcaCompilationEvent $event): void
     {
-        $tca = $event->getTca();
-
-
-
+        $tcaPreparation = GeneralUtility::makeInstance(TcaPreparationForTag::class);
+        $event->setTca($tcaPreparation->prepare($event->getTca()));
     }
 }

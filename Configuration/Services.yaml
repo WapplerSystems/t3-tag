@@ -7,7 +7,7 @@ services:
   TYPO3\CMS\Core\:
     resource: '../Classes/*'
 
-  TYPO3\CMS\Core\Event\AfterTcaCompilationEventListener:
+  WapplerSystems\Tag\Event\AfterTcaCompilationEventListenerForTag:
     tags:
       - name: event.listener
         identifier: tag-after-tca-compilation
