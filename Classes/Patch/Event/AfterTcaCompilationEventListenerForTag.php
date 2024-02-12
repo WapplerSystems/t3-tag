@@ -15,11 +15,11 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace WapplerSystens\Tag\Event;
+namespace WapplerSystems\Tag\Event;
 
 use TYPO3\CMS\Core\Configuration\Event\AfterTcaCompilationEvent;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use WapplerSystens\Tag\Preparations\TcaPreparationForTag;
+use WapplerSystems\Tag\Preparations\TcaPreparationForTag;
 
 /**
  * Process request token.

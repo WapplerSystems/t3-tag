@@ -33,7 +33,7 @@
 		"psr-4": {
 			"TYPO3\\CMS\\Core\\": "Classes/Core/",
 			"TYPO3\\CMS\\Extbase\\": "Classes/Extbase/",
-			"WapplerSystens\\Tag\\": "Classes/Patch/"
+			"WapplerSystems\\Tag\\": "Classes/Patch/"
 		}
 	}
 }

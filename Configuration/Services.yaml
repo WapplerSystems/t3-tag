@@ -10,7 +10,7 @@ services:
   TYPO3\CMS\Extbase\:
     resource: '../Classes/Extbase/*'
 
-  WapplerSystens\Tag\:
+  WapplerSystems\Tag\:
     resource: '../Classes/Patch/*'
 
   WapplerSystems\Tag\Event\AfterTcaCompilationEventListenerForTag:
