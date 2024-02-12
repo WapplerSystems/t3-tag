@@ -5,7 +5,13 @@ services:
     public: false
 
   TYPO3\CMS\Core\:
-    resource: '../Classes/*'
+    resource: '../Classes/Core/*'
+
+  TYPO3\CMS\Extbase\:
+    resource: '../Classes/Extbase/*'
+
+  WapplerSystens\Tag\:
+    resource: '../Classes/Patch/*'
 
   WapplerSystems\Tag\Event\AfterTcaCompilationEventListenerForTag:
     tags:
