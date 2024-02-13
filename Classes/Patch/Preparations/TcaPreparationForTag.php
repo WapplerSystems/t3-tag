@@ -73,14 +73,17 @@ class TcaPreparationForTag
                 }
 
                 if (!isset($fieldConfig['label'])) {
-                    $fieldConfig['label'] = 'LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_tag.tags';
+                    $fieldConfig['label'] = 'LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:sys_tag.tags';
                 }
+
+                $fieldConfig['config']['type'] = 'group';
+                $fieldConfig['config']['allowed'] = 'sys_tag';
 
                 // Force foreign_table for type tag
                 $fieldConfig['config']['foreign_table'] = 'sys_tag';
 
                 // Initialize default column configuration and merge it with already defined
-                $fieldConfig['config']['size'] ??= 20;
+                $fieldConfig['config']['size'] ??= 1;
                 $fieldConfig['config']['foreign_table_where'] ??= ' AND {#sys_tag}.{#sys_language_uid} IN (-1, 0)';
 
                 // In case no relationship is given, fall back to "manyToMany"

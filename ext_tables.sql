@@ -9,3 +9,12 @@ CREATE TABLE sys_tag (
 	KEY category_list (pid,deleted,sys_language_uid)
 );
 
+CREATE TABLE tt_content
+(
+    tags int(11) DEFAULT '0' NOT NULL
+);
+
+CREATE TABLE fe_users
+(
+    tags int(11) DEFAULT '0' NOT NULL
+);

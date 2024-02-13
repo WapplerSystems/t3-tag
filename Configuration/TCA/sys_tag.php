@@ -24,7 +24,7 @@ return [
             'endtime' => 'endtime',
         ],
         'typeicon_classes' => [
-            'default' => 'mimetypes-x-sys_tag',
+            'default' => 'mimetypes-x-sys_category',
         ],
         'security' => [
             'ignoreRootLevelRestriction' => true,
@@ -33,17 +33,17 @@ return [
     'types' => [
         '1' => [
             'showitem' => '
-                --div--;LLL:EXT:tagging/Resources/Private/Language/Form/locallang_tabs.xlf:general,
+                --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
                     title, parent,
                 --div--;LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:sys_tag.tabs.items,
                     items,
-                --div--;LLL:EXT:tagging/Resources/Private/Language/Form/locallang_tabs.xlf:language,
+                --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language,
                     --palette--;;language,
-                --div--;LLL:EXT:tagging/Resources/Private/Language/Form/locallang_tabs.xlf:access,
+                --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access,
                     hidden,--palette--;;timeRestriction,
-                --div--;LLL:EXT:tagging/Resources/Private/Language/Form/locallang_tabs.xlf:notes,
+                --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:notes,
                     description,
-                --div--;LLL:EXT:tagging/Resources/Private/Language/Form/locallang_tabs.xlf:extended,
+                --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:extended,
             ',
         ],
     ],
@@ -54,14 +54,14 @@ return [
     'columns' => [
         'sys_language_uid' => [
             'exclude' => true,
-            'label' => 'LLL:EXT:tagging/Resources/Private/Language/locallang_general.xlf:LGL.language',
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
             'config' => [
                 'type' => 'language',
             ],
         ],
         'l10n_parent' => [
             'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label' => 'LLL:EXT:tagging/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
             'config' => [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
@@ -81,7 +81,7 @@ return [
         ],
         'hidden' => [
             'exclude' => true,
-            'label' => 'LLL:EXT:tagging/Resources/Private/Language/locallang_general.xlf:LGL.enabled',
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.enabled',
             'config' => [
                 'type' => 'check',
                 'renderType' => 'checkboxToggle',
@@ -95,7 +95,7 @@ return [
         ],
         'starttime' => [
             'exclude' => true,
-            'label' => 'LLL:EXT:tagging/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
             'config' => [
                 'type' => 'datetime',
                 'default' => 0,
@@ -106,7 +106,7 @@ return [
         ],
         'endtime' => [
             'exclude' => true,
-            'label' => 'LLL:EXT:tagging/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
             'config' => [
                 'type' => 'datetime',
                 'default' => 0,
