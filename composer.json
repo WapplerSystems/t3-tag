@@ -1,7 +1,7 @@
 {
 	"name": "wapplersystems/tag",
 	"type": "typo3-cms-extension",
-	"description": "",
+	"description": "A patch for TYPO3 to easily add tags just like categories to any element",
 	"keywords": [
 		"TYPO3",
 		"extension"
