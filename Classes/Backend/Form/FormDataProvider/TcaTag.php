@@ -21,9 +21,6 @@ use TYPO3\CMS\Backend\Clipboard\Clipboard;
 use TYPO3\CMS\Backend\Form\FormDataProviderInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\RelationHandler;
-use TYPO3\CMS\Core\Tree\TableConfiguration\ArrayTreeRenderer;
-use TYPO3\CMS\Core\Tree\TableConfiguration\TableConfigurationTree;
-use TYPO3\CMS\Core\Tree\TableConfiguration\TreeDataProviderFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 
@@ -38,7 +35,7 @@ class TcaTag extends AbstractItemProvider implements FormDataProviderInterface
     /**
      * Sanitize config options and resolve tag items if requested.
      */
-    public function addData(array $result): array
+    public function addData(array $result)
     {
         foreach ($result['processedTca']['columns'] as $fieldName => $fieldConfig) {
             if (empty($fieldConfig['config']['type']) || $fieldConfig['config']['type'] !== 'tag') {
@@ -55,6 +52,13 @@ class TcaTag extends AbstractItemProvider implements FormDataProviderInterface
                 $result['processedTca']['columns'][$fieldName]['config']['maxitems'] = 99999;
             }
 
+            $result['processedTca']['columns'][$fieldName]['label'] = 'dedded';
+
+            //$result['processedTca']['columns'][$fieldName]['config']['renderType'] = 'group';
+
+            $result['processedTca']['columns'][$fieldName]['config']['allowed'] = 'sys_tag';
+            $fieldConfig['config']['allowed'] = 'sys_tag';
+
             $databaseRowFieldContent = '';
             if (!empty($result['databaseRow'][$fieldName])) {
                 $databaseRowFieldContent = (string)$result['databaseRow'][$fieldName];
@@ -62,12 +66,7 @@ class TcaTag extends AbstractItemProvider implements FormDataProviderInterface
 
             $items = [];
             $sanitizedClipboardElements = [];
-            if (empty($fieldConfig['config']['allowed'])) {
-                throw new \RuntimeException(
-                    'Mandatory TCA config setting "allowed" missing in field "' . $fieldName . '" of table "' . $result['tableName'] . '"',
-                    1482250512
-                );
-            }
+
 
             // In case of vanilla uid, 0 is used to query relations by splitting $databaseRowFieldContent (possible defVals)
             $MMuid = MathUtility::canBeInterpretedAsInteger($result['databaseRow']['uid']) ? $result['databaseRow']['uid'] : 0;
@@ -132,80 +131,4 @@ class TcaTag extends AbstractItemProvider implements FormDataProviderInterface
         return $result;
     }
 
-    /**
-     * A couple of tree specific config parameters can be overwritten via page TS.
-     * Pick those that influence the data fetching and write them into the config
-     * given to the tree data provider.
-     */
-    protected function overrideConfigFromPageTSconfig(
-        array $result,
-        string $table,
-        string $fieldName,
-        array $fieldConfig
-    ): array {
-        $pageTsConfig = $result['pageTsConfig']['TCEFORM.'][$table . '.'][$fieldName . '.']['config.'] ?? [];
-
-
-
-        return $fieldConfig;
-    }
-
-    /**
-     * Validate and sanitize the tag field value.
-     */
-    protected function processCategoryFieldValue(array $result, string $fieldName): array
-    {
-        $fieldConfig = $result['processedTca']['columns'][$fieldName];
-        $relationHandler = GeneralUtility::makeInstance(RelationHandler::class);
-
-        $newDatabaseValueArray = [];
-        $currentDatabaseValueArray = array_key_exists($fieldName, $result['databaseRow']) ? $result['databaseRow'][$fieldName] : [];
-
-        if (!empty($fieldConfig['config']['MM']) && $result['command'] !== 'new') {
-            $relationHandler->start(
-                implode(',', $currentDatabaseValueArray),
-                $fieldConfig['config']['foreign_table'],
-                $fieldConfig['config']['MM'],
-                $result['databaseRow']['uid'],
-                $result['tableName'],
-                $fieldConfig['config']
-            );
-            $newDatabaseValueArray = array_merge($newDatabaseValueArray, $relationHandler->getValueArray());
-        } else {
-            // If not dealing with MM relations, use default live uid, not versioned uid for record relations
-            $relationHandler->start(
-                implode(',', $currentDatabaseValueArray),
-                $fieldConfig['config']['foreign_table'],
-                '',
-                $this->getLiveUid($result),
-                $result['tableName'],
-                $fieldConfig['config']
-            );
-            $databaseIds = array_merge($newDatabaseValueArray, $relationHandler->getValueArray());
-            // remove all items from the current DB values if not available as relation
-            $newDatabaseValueArray = array_values(array_intersect($currentDatabaseValueArray, $databaseIds));
-        }
-
-        // Since only uids are allowed, the array must be unique
-        return array_unique($newDatabaseValueArray);
-    }
-
-    protected function isTargetRenderType($fieldConfig): bool
-    {
-        // Type tag does not support any renderType
-        return !isset($fieldConfig['config']['renderType']);
-    }
-
-    protected function initializeDefaultFieldConfig(array $fieldConfig): array
-    {
-
-        // Calculate maxitems value, while 0 will fall back to 99999
-        $fieldConfig['config']['maxitems'] = MathUtility::forceIntegerInRange(
-            $fieldConfig['config']['maxitems'] ?? 0,
-            0,
-            99999
-        ) ?: 99999;
-
-        return $fieldConfig;
-    }
 }
