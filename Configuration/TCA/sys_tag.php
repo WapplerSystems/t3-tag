@@ -34,15 +34,13 @@ return [
         '1' => [
             'showitem' => '
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
-                    title,
+                    title, description,
                 --div--;LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:sys_tag.tabs.items,
                     items,
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language,
                     --palette--;;language,
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access,
                     hidden,--palette--;;timeRestriction,
-                --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:notes,
-                    description,
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:extended,
             ',
         ],
@@ -66,7 +64,7 @@ return [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
                 'items' => [
-                    ['label' => '', 'value' => 0],
+                    ['', 0],
                 ],
                 'foreign_table' => 'sys_tag',
                 'foreign_table_where' => 'AND {#sys_tag}.{#pid}=###CURRENT_PID### AND {#sys_tag}.{#sys_language_uid} IN (-1,0)',
@@ -87,7 +85,8 @@ return [
                 'renderType' => 'checkboxToggle',
                 'items' => [
                     [
-                        'label' => '',
+                        0 => '',
+                        1 => '',
                         'invertStateDisplay' => true,
                     ],
                 ],
@@ -97,7 +96,9 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
             'config' => [
-                'type' => 'datetime',
+                'type' => 'input',
+                'renderType' => 'inputDateTime',
+                'eval' => 'datetime,int',
                 'default' => 0,
                 'behaviour' => [
                     'allowLanguageSynchronization' => true,
@@ -108,7 +109,9 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
             'config' => [
-                'type' => 'datetime',
+                'type' => 'input',
+                'renderType' => 'inputDateTime',
+                'eval' => 'datetime,int',
                 'default' => 0,
                 'range' => [
                     'upper' => mktime(0, 0, 0, 1, 1, 2038),
