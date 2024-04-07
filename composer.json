@@ -12,6 +12,10 @@
 			"name": "Sven Wappler",
 			"role": "Developer",
 			"homepage": "https://wappler.systems"
+		},
+		{
+			"name": "David Bruchmann",
+			"role": "Developer"
 		}
 	],
 	"license": [
