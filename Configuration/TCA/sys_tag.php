@@ -34,7 +34,7 @@ return [
         '1' => [
             'showitem' => '
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
-                    title, parent,
+                    title,
                 --div--;LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:sys_tag.tabs.items,
                     items,
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language,
