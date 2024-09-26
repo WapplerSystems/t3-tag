@@ -18,3 +18,9 @@ CREATE TABLE fe_users
 (
     tags int(11) DEFAULT '0' NOT NULL
 );
+
+CREATE TABLE sys_tag_record_mm
+(
+    tablenames varchar(255) DEFAULT '' NOT NULL,
+    fieldname  varchar(255) DEFAULT '' NOT NULL
+);
