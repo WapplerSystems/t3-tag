@@ -15,9 +15,12 @@
 
 namespace TYPO3\CMS\Backend\Form\Element;
 
+use TYPO3\CMS\Backend\Form\InlineStackProcessor;
+use TYPO3\CMS\Backend\Form\Utility\FormEngineUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\MathUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
@@ -39,51 +42,20 @@ class TagElement extends AbstractFormElement
     ];
 
     /**
-     * Default field controls for this element.
-     *
-     * @var array
-     */
-    protected $defaultFieldControl = [
-        'elementBrowser' => [
-            'renderType' => 'elementBrowser',
-        ],
-        'insertClipboard' => [
-            'renderType' => 'insertClipboard',
-            'after' => [ 'elementBrowser' ],
-        ],
-        'editPopup' => [
-            'renderType' => 'editPopup',
-            'disabled' => true,
-            'after' => [ 'insertClipboard' ],
-        ],
-        'addRecord' => [
-            'renderType' => 'addRecord',
-            'disabled' => true,
-            'after' => [ 'editPopup' ],
-        ],
-        'listModule' => [
-            'renderType' => 'listModule',
-            'disabled' => true,
-            'after' => [ 'addRecord' ],
-        ],
-    ];
-
-    /**
      * Default field wizards for this element
      *
      * @var array
      */
     protected $defaultFieldWizard = [
-        'tableList' => [
-            'renderType' => 'tableList',
-        ],
-        'recordsOverview' => [
-            'renderType' => 'recordsOverview',
-            'after' => [ 'tableList' ],
+        'selectIcons' => [
+            'renderType' => 'selectIcons',
+            'disabled' => true,
         ],
         'localizationStateSelector' => [
             'renderType' => 'localizationStateSelector',
-            'after' => [ 'recordsOverview' ],
+            'after' => [
+                'selectIcons',
+            ],
         ],
         'otherLanguageContent' => [
             'renderType' => 'otherLanguageContent',
@@ -104,114 +76,148 @@ class TagElement extends AbstractFormElement
      */
     public function render()
     {
-        $languageService = $this->getLanguageService();
-        $backendUser = $this->getBackendUserAuthentication();
         $resultArray = $this->initializeResultArray();
         // @deprecated since v12, will be removed with v13 when all elements handle label/legend on their own
         $resultArray['labelHasBeenHandled'] = true;
 
         $table = $this->data['tableName'];
-        $fieldName = $this->data['fieldName'];
-        $row = $this->data['databaseRow'];
+        $field = $this->data['fieldName'];
         $parameterArray = $this->data['parameterArray'];
         $config = $parameterArray['fieldConf']['config'];
-        $elementName = $parameterArray['itemFormElName'];
-        $recordTypeValue = $this->data['recordTypeValue'] ?? null;
 
-        $selectedItems = $parameterArray['itemFormElValue'];
-        $maxItems = $config['maxitems'];
+        $selectItems = $parameterArray['fieldConf']['config']['items'];
+        $classList = ['form-select', 'form-control-adapt'];
 
-        $size = (int)($config['size'] ?? 5);
-        $autoSizeMax = (int)($config['autoSizeMax'] ?? 0);
-        if ($autoSizeMax > 0) {
-            $size = MathUtility::forceIntegerInRange($size, 1);
-            $size = MathUtility::forceIntegerInRange(count($selectedItems) + 1, $size, $autoSizeMax);
-        }
-        $fieldId = StringUtility::getUniqueId('tceforms-multiselect-');
-
-        $maxTitleLength = (int)$backendUser->uc['titleLen'];
-
-        $listOfSelectedValues = [];
-        $selectorOptionsHtml = [];
-        foreach ($selectedItems as $selectedItem) {
-            $tableWithUid = $selectedItem['table'] . '_' . $selectedItem['uid'];
-            $listOfSelectedValues[] = $tableWithUid;
-            $title = $selectedItem['title'];
-            if (empty($title)) {
-                $title = '[' . $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.no_title') . ']';
+        // Check against inline uniqueness
+        $inlineStackProcessor = GeneralUtility::makeInstance(InlineStackProcessor::class);
+        $inlineStackProcessor->initializeByGivenStructure($this->data['inlineStructure']);
+        $uniqueIds = [];
+        if (($this->data['isInlineChild'] ?? false) && ($this->data['inlineParentUid'] ?? false)) {
+            // If config[foreign_unique] is set for the parent inline field, all
+            // already used unique ids must be excluded from the select items.
+            $inlineObjectName = $inlineStackProcessor->getCurrentStructureDomObjectIdPrefix($this->data['inlineFirstPid']);
+            if (($this->data['inlineParentConfig']['foreign_table'] ?? false) === $table
+                && ($this->data['inlineParentConfig']['foreign_unique'] ?? false) === $field
+            ) {
+                $classList[] = 't3js-inline-unique';
+                $uniqueIds = $this->data['inlineData']['unique'][$inlineObjectName . '-' . $table]['used'] ?? [];
             }
-            $shortenedTitle = GeneralUtility::fixed_lgd_cs($title, $maxTitleLength);
-            $selectorOptionsHtml[] =
-                '<option value="' . htmlspecialchars($tableWithUid) . '" title="' . htmlspecialchars($title) . '">'
-                    . htmlspecialchars($this->appendValueToLabelInDebugMode($shortenedTitle, $tableWithUid))
-                . '</option>';
+            // hide uid of parent record for symmetric relations
+            if (($this->data['inlineParentConfig']['foreign_table'] ?? false) === $table
+                && (
+                    ($this->data['inlineParentConfig']['foreign_field'] ?? false) === $field
+                    || ($this->data['inlineParentConfig']['symmetric_field'] ?? false) === $field
+                )
+            ) {
+                $uniqueIds[] = $this->data['inlineParentUid'];
+            }
+            $uniqueIds = array_map(static fn($item) => (int)$item, $uniqueIds);
+        }
+
+        $itemName = (string)$parameterArray['itemFormElName'];
+
+
+        // Initialization:
+        $fieldId = StringUtility::getUniqueId('tceforms-tag-');
+        $renderedLabel = $this->renderLabel($fieldId);
+        $selectedIcon = '';
+        $size = (int)($config['size'] ?? 0);
+
+        // Style set on <select/>
+        $options = '';
+        $disabled = false;
+        if (!empty($config['readOnly'])) {
+            $disabled = true;
+        }
+
+        // Prepare groups
+        $selectItemCounter = 0;
+        $selectItemGroupCount = 0;
+        $selectItemGroups = [];
+        $selectedValue = '';
+        $hasIcons = false;
+
+        // In case e.g. "l10n_display" is set to "defaultAsReadonly" only one value (as string) could be handed in
+        if (!empty($parameterArray['itemFormElValue'])) {
+            if (is_array($parameterArray['itemFormElValue'])) {
+                $selectedValue = (string)$parameterArray['itemFormElValue'][0];
+            } else {
+                $selectedValue = (string)$parameterArray['itemFormElValue'];
+            }
+        }
+
+        foreach ($selectItems as $item) {
+            $selected = $selectedValue === (string)$item['value'];
+
+            if ($item['value'] === '--div--') {
+                // IS OPTGROUP
+                if ($selectItemCounter !== 0) {
+                    $selectItemGroupCount++;
+                }
+                $selectItemGroups[$selectItemGroupCount]['header'] = [
+                    'title' => $item['label'],
+                ];
+            } elseif ($selected || !in_array((int)$item['value'], $uniqueIds, true)) {
+                $icon = !empty($item['icon']) ? FormEngineUtility::getIconHtml($item['icon'], $item['label'], $item['label']) : '';
+
+                if ($selected) {
+                    $selectedIcon = $icon;
+                }
+
+                $selectItemGroups[$selectItemGroupCount]['items'][] = [
+                    'title' => $this->appendValueToLabelInDebugMode($item['label'], $item['value']),
+                    'value' => $item['value'],
+                    'icon' => $icon,
+                    'selected' => $selected,
+                ];
+                $selectItemCounter++;
+            }
+        }
+
+        // Fallback icon
+        // @todo: assign a special icon for non matching values?
+        if (!$selectedIcon && !empty($selectItemGroups[0]['items'][0]['icon'])) {
+            $selectedIcon = $selectItemGroups[0]['items'][0]['icon'];
+        }
+
+        // Process groups
+        foreach ($selectItemGroups as $selectItemGroup) {
+            // suppress groups without items
+            if (empty($selectItemGroup['items'])) {
+                continue;
+            }
+
+            $optionGroup = is_array($selectItemGroup['header'] ?? null);
+            $options .= ($optionGroup ? '<optgroup label="' . htmlspecialchars($selectItemGroup['header']['title'], ENT_COMPAT, 'UTF-8', false) . '">' : '');
+
+            if (is_array($selectItemGroup['items'])) {
+                foreach ($selectItemGroup['items'] as $item) {
+                    $options .= '<option value="' . htmlspecialchars($item['value']) . '" data-icon="' .
+                        htmlspecialchars($item['icon']) . '"'
+                        . ($item['selected'] ? ' selected="selected"' : '') . '>' . htmlspecialchars((string)($item['title'] ?? ''), ENT_COMPAT, 'UTF-8', false) . '</option>';
+                }
+                $hasIcons = !empty($item['icon']);
+            }
+
+            $options .= ($optionGroup ? '</optgroup>' : '');
+        }
+
+        $selectAttributes = [
+            'id' => $fieldId,
+            'name' => (string)($parameterArray['itemFormElName'] ?? ''),
+            'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
+            'class' => implode(' ', $classList),
+        ];
+        if ($size) {
+            $selectAttributes['size'] = (string)$size;
+        }
+        if ($disabled) {
+            $selectAttributes['disabled'] = 'disabled';
         }
 
         $fieldInformationResult = $this->renderFieldInformation();
         $fieldInformationHtml = $fieldInformationResult['html'];
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldInformationResult, false);
-
-        if (isset($config['readOnly']) && $config['readOnly']) {
-            // Return early if element is read only
-            $html = [];
-            $html[] = $this->renderLabel($fieldId);
-            $html[] = '<div class="formengine-field-item t3js-formengine-field-item">';
-            $html[] =   $fieldInformationHtml;
-            $html[] =   '<div class="form-wizards-wrap">';
-            $html[] =       '<div class="form-wizards-element">';
-            $html[] =           '<select';
-            $html[] =               ' size="' . $size . '"';
-            $html[] =               ' disabled="disabled"';
-            $html[] =               ' id="' . $fieldId . '"';
-            $html[] =               ' class="form-select"';
-            $html[] =               ($maxItems !== 1 && $size !== 1) ? ' multiple="multiple"' : '';
-            $html[] =           '>';
-            $html[] =               implode(LF, $selectorOptionsHtml);
-            $html[] =           '</select>';
-            $html[] =       '</div>';
-            $html[] =   '</div>';
-            $html[] = '</div>';
-            $resultArray['html'] = implode(LF, $html);
-            return $resultArray;
-        }
-
-        // Need some information if in flex form scope for the suggest element
-        $dataStructureIdentifier = '';
-        $flexFormSheetName = '';
-        $flexFormFieldName = '';
-        $flexFormContainerName = '';
-        $flexFormContainerFieldName = '';
-        // Get minimum characters for suggest from TCA and override by TsConfig
-        $suggestMinimumCharacters = 0;
-        if (isset($config['suggestOptions']['default']['minimumCharacters'])) {
-            $suggestMinimumCharacters = (int)$config['suggestOptions']['default']['minimumCharacters'];
-        }
-        if (isset($parameterArray['fieldTSConfig']['suggest.']['default.']['minimumCharacters'])) {
-            $suggestMinimumCharacters = (int)$parameterArray['fieldTSConfig']['suggest.']['default.']['minimumCharacters'];
-        }
-        $suggestMinimumCharacters = $suggestMinimumCharacters > 0 ? $suggestMinimumCharacters : 2;
-
-        $itemCanBeSelectedMoreThanOnce = !empty($config['multiple']);
-
-        $showMoveIcons = true;
-        if (isset($config['hideMoveIcons']) && $config['hideMoveIcons']) {
-            $showMoveIcons = false;
-        }
-        $showDeleteControl = true;
-        if (isset($config['hideDeleteIcon']) && $config['hideDeleteIcon']) {
-            $showDeleteControl = false;
-        }
-
-        $selectorAttributes = [
-            'id' => $fieldId,
-            'data-formengine-input-name' => htmlspecialchars($elementName),
-            'data-maxitems' => (string)$maxItems,
-            'size' => (string)$size,
-        ];
-        $selectorAttributes['class'] = 'form-select';
-        if ($maxItems !== 1 && $size !== 1) {
-            $selectorAttributes['multiple'] = 'multiple';
-        }
 
         $fieldControlResult = $this->renderFieldControl();
         $fieldControlHtml = $fieldControlResult['html'];
@@ -222,126 +228,50 @@ class TagElement extends AbstractFormElement
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
 
         $html = [];
-        $html[] = $this->renderLabel($fieldId);
         $html[] = '<div class="formengine-field-item t3js-formengine-field-item">';
-        $html[] =   $fieldInformationHtml;
-        $html[] =   '<div class="form-wizards-wrap">';
-        if (!isset($config['hideSuggest']) || (bool)$config['hideSuggest'] !== true) {
-            $html[] =   '<div class="form-wizards-items-top">';
-            $html[] =       '<div class="autocomplete t3-form-suggest-container">';
+        $html[] = $fieldInformationHtml;
+        $html[] =   '<div class="form-control-wrap">';
+        $html[] =       '<div class="form-wizards-wrap">';
+        $html[] =           '<div class="form-wizards-element">';
+        if ($hasIcons) {
             $html[] =           '<div class="input-group">';
-            $html[] =               '<span class="input-group-addon">';
-            $html[] =                   $this->iconFactory->getIcon('actions-search', Icon::SIZE_SMALL)->render();
+            $html[] =               '<span class="input-group-addon input-group-icon">';
+            $html[] =                   $selectedIcon;
             $html[] =               '</span>';
-            $html[] =               '<input type="search" class="t3-form-suggest form-control"';
-            $html[] =                   ' placeholder="' . $languageService->sL('LLL:EXT:backend/Resources/Private/Language/locallang_alt_doc.xlf:search.find_record') . '"';
-            $html[] =                   ' data-fieldname="' . htmlspecialchars($fieldName) . '"';
-            $html[] =                   ' data-tablename="' . htmlspecialchars($table) . '"';
-            $html[] =                   ' data-field="' . htmlspecialchars($elementName) . '"';
-            $html[] =                   ' data-uid="' . htmlspecialchars($this->data['databaseRow']['uid']) . '"';
-            $html[] =                   ' data-pid="' . htmlspecialchars($this->data['parentPageRow']['uid'] ?? 0) . '"';
-            $html[] =                   ' data-fieldtype="' . htmlspecialchars('group') . '"';
-            $html[] =                   ' data-minchars="' . htmlspecialchars((string)$suggestMinimumCharacters) . '"';
-            $html[] =                   ' data-datastructureidentifier="' . htmlspecialchars($dataStructureIdentifier) . '"';
-            $html[] =                   ' data-flexformsheetname="' . htmlspecialchars($flexFormSheetName) . '"';
-            $html[] =                   ' data-flexformfieldname="' . htmlspecialchars($flexFormFieldName) . '"';
-            $html[] =                   ' data-flexformcontainername="' . htmlspecialchars($flexFormContainerName) . '"';
-            $html[] =                   ' data-flexformcontainerfieldname="' . htmlspecialchars($flexFormContainerFieldName) . '"';
-            if ($recordTypeValue !== null && $recordTypeValue !== '') {
-                $html[] =                   ' data-recordtypevalue="' . htmlspecialchars($recordTypeValue) . '"';
-            }
-            $html[] =               '/>';
-            $html[] =           '</div>';
-            $html[] =       '</div>';
-            $html[] =   '</div>';
         }
-        $html[] =       '<div class="form-wizards-element">';
-        $html[] =           '<input type="hidden" data-formengine-input-name="' . htmlspecialchars($elementName) . '" value="' . $itemCanBeSelectedMoreThanOnce . '" />';
-        $html[] =           '<select ' . GeneralUtility::implodeAttributes($selectorAttributes, true) . '>';
-        $html[] =               implode(LF, $selectorOptionsHtml);
-        $html[] =           '</select>';
-        $html[] =       '</div>';
-        if (($maxItems > 1 && $size > 1 && $showMoveIcons) || $showDeleteControl) {
-            $html[] =       '<div class="form-wizards-items-aside form-wizards-items-aside--move">';
-            $html[] =           '<div class="btn-group-vertical">';
-            if ($maxItems > 1 && $size >= 5 && $showMoveIcons) {
-                $html[] =           '<a href="#"';
-                $html[] =               ' class="btn btn-default t3js-btn-option t3js-btn-moveoption-top"';
-                $html[] =               ' data-fieldname="' . htmlspecialchars($elementName) . '"';
-                $html[] =               ' title="' . htmlspecialchars($languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.move_to_top')) . '"';
-                $html[] =           '>';
-                $html[] =               $this->iconFactory->getIcon('actions-move-to-top', Icon::SIZE_SMALL)->render();
-                $html[] =           '</a>';
-            }
-            if ($maxItems > 1 && $size > 1 && $showMoveIcons) {
-                $html[] =           '<a href="#"';
-                $html[] =               ' class="btn btn-default t3js-btn-option t3js-btn-moveoption-up"';
-                $html[] =               ' data-fieldname="' . htmlspecialchars($elementName) . '"';
-                $html[] =               ' title="' . htmlspecialchars($languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.move_up')) . '"';
-                $html[] =           '>';
-                $html[] =               $this->iconFactory->getIcon('actions-move-up', Icon::SIZE_SMALL)->render();
-                $html[] =           '</a>';
-                $html[] =           '<a href="#"';
-                $html[] =               ' class="btn btn-default t3js-btn-option t3js-btn-moveoption-down"';
-                $html[] =               ' data-fieldname="' . htmlspecialchars($elementName) . '"';
-                $html[] =               ' title="' . htmlspecialchars($languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.move_down')) . '"';
-                $html[] =           '>';
-                $html[] =               $this->iconFactory->getIcon('actions-move-down', Icon::SIZE_SMALL)->render();
-                $html[] =           '</a>';
-            }
-            if ($maxItems > 1 && $size >= 5 && $showMoveIcons) {
-                $html[] =           '<a href="#"';
-                $html[] =               ' class="btn btn-default t3js-btn-option t3js-btn-moveoption-bottom"';
-                $html[] =               ' data-fieldname="' . htmlspecialchars($elementName) . '"';
-                $html[] =               ' title="' . htmlspecialchars($languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.move_to_bottom')) . '"';
-                $html[] =           '>';
-                $html[] =               $this->iconFactory->getIcon('actions-move-to-bottom', Icon::SIZE_SMALL)->render();
-                $html[] =           '</a>';
-            }
-            if ($showDeleteControl) {
-                $html[] =           '<a href="#"';
-                $html[] =               ' class="btn btn-default t3js-btn-option t3js-btn-removeoption t3js-revert-unique"';
-                $html[] =               ' data-fieldname="' . htmlspecialchars($elementName) . '"';
-                $html[] =               ' data-uid="' . htmlspecialchars($row['uid']) . '"';
-                $html[] =               ' title="' . htmlspecialchars($languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.remove_selected')) . '"';
-                $html[] =           '>';
-                $html[] =               $this->iconFactory->getIcon('actions-selection-delete', Icon::SIZE_SMALL)->render();
-                $html[] =           '</a>';
-            }
+        $html[] =                   '<select ' . GeneralUtility::implodeAttributes($selectAttributes, true) . '>';
+        $html[] =                       $options;
+        $html[] =                   '</select>';
+        if ($hasIcons) {
+            $html[] =           '</div>';
         }
         $html[] =           '</div>';
-        $html[] =       '</div>';
-        if ($fieldControlHtml !== '') {
-            $html[] =       '<div class="form-wizards-items-aside form-wizards-items-aside--field-control">';
-            $html[] =           '<div class="btn-group-vertical">';
-            $html[] =               $fieldControlHtml;
-            $html[] =           '</div>';
+        if (!$disabled && !empty($fieldControlHtml)) {
+            $html[] =      '<div class="form-wizards-items-aside form-wizards-items-aside--field-control">';
+            $html[] =          '<div class="btn-group">';
+            $html[] =              $fieldControlHtml;
+            $html[] =          '</div>';
+            $html[] =      '</div>';
+        }
+        if (!$disabled && !empty($fieldWizardHtml)) {
+            $html[] =       '<div class="form-wizards-items-bottom">';
+            $html[] =           $fieldWizardHtml;
             $html[] =       '</div>';
         }
-        if (!empty($fieldWizardHtml)) {
-            $html[] = '<div class="form-wizards-items-bottom">';
-            $html[] = $fieldWizardHtml;
-            $html[] = '</div>';
-        }
+        $html[] =       '</div>';
         $html[] =   '</div>';
-
-        $hiddenElementAttrs = array_merge(
-            [
-                'type' => 'hidden',
-                'name' => $elementName,
-                'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
-                'value' => implode(',', $listOfSelectedValues),
-            ],
-            $this->getOnFieldChangeAttrs('change', $parameterArray['fieldChangeFunc'] ?? [])
-        );
-        $html[] =   '<input ' . GeneralUtility::implodeAttributes($hiddenElementAttrs, true) . '>';
         $html[] = '</div>';
 
-        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create(
-            '@typo3/backend/form-engine/element/group-element.js'
-        )->instance($fieldId);
+        $fullElement = implode(LF, $html);
+        $resultArray['html'] = $renderedLabel . '
+            <typo3-formengine-element-tag class="formengine-field-item t3js-formengine-field-item" recordFieldId="' . htmlspecialchars($fieldId) . '">
+                ' . $fieldInformationHtml . '
+                ' . $fullElement . '
+            </typo3-formengine-element-tag>';
 
-        $resultArray['html'] = implode(LF, $html);
+        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/backend/tag/select.js');
+        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/backend/tag/element.js');
+
         return $resultArray;
     }
 

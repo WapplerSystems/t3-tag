@@ -13,7 +13,7 @@ services:
   WapplerSystems\Tag\:
     resource: '../Classes/Patch/*'
 
-  WapplerSystems\Tag\Event\AfterTcaCompilationEventListenerForTag:
-    tags:
-      - name: event.listener
-        identifier: tag-after-tca-compilation
+#  WapplerSystems\Tag\Event\AfterTcaCompilationEventListenerForTag:
+#    tags:
+#      - name: event.listener
+#        identifier: tag-after-tca-compilation

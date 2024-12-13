@@ -52,8 +52,6 @@ class TcaTag extends AbstractItemProvider implements FormDataProviderInterface
                 $result['processedTca']['columns'][$fieldName]['config']['maxitems'] = 99999;
             }
 
-            $result['processedTca']['columns'][$fieldName]['label'] = 'dedded';
-
             //$result['processedTca']['columns'][$fieldName]['config']['renderType'] = 'group';
 
             $result['processedTca']['columns'][$fieldName]['config']['allowed'] = 'sys_tag';
