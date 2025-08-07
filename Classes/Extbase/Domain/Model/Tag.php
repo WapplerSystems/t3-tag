@@ -17,7 +17,6 @@ namespace TYPO3\CMS\Extbase\Domain\Model;
 
 use TYPO3\CMS\Extbase\Annotation as Extbase;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
-use TYPO3\CMS\Extbase\Persistence\Generic\LazyLoadingProxy;
 
 /**
  * This model represents a category (for anything).
@@ -28,19 +27,19 @@ class Tag extends AbstractEntity
      * @var string
      * @Extbase\Validate("NotEmpty")
      */
-    protected $title = '';
+    protected string $title = '';
 
     /**
      * @var string
      */
-    protected $description = '';
+    protected string $description = '';
 
     /**
      * Gets the title.
      *
      * @return string the title, might be empty
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -50,7 +49,7 @@ class Tag extends AbstractEntity
      *
      * @param string $title the title to set, may be empty
      */
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
@@ -60,7 +59,7 @@ class Tag extends AbstractEntity
      *
      * @return string the description, might be empty
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
@@ -70,7 +69,7 @@ class Tag extends AbstractEntity
      *
      * @param string $description the description to set, may be empty
      */
-    public function setDescription($description)
+    public function setDescription(string $description): void
     {
         $this->description = $description;
     }
