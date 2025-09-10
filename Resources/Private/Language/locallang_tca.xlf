@@ -9,6 +9,9 @@
 			<trans-unit id="sys_tag.title" resname="sys_tag.title">
 				<source>Title</source>
 			</trans-unit>
+			<trans-unit id="sys_tag.color" resname="sys_tag.color">
+				<source>Color</source>
+			</trans-unit>
 			<trans-unit id="sys_tag.description" resname="sys_tag.description">
 				<source>Description</source>
 			</trans-unit>

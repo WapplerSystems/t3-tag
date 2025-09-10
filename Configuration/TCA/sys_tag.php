@@ -34,7 +34,7 @@ return [
         '1' => [
             'showitem' => '
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
-                    title,
+                    title, color,
                 --div--;LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:sys_tag.tabs.items,
                     items,
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language,
@@ -125,6 +125,26 @@ return [
                 'width' => 200,
                 'required' => true,
                 'eval' => 'trim',
+            ],
+        ],
+        'color' => [
+            'label' => 'LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:sys_tag.color',
+            'config' => [
+                'type' => 'input',
+                'renderType' => 'colorpicker',
+                'size' => 7,
+                'max' => 7,
+                'eval' => 'trim',
+                'default' => '#FFFFFF',
+                'wizards' => [
+                    'colorpicker' => [
+                        'type' => 'colorpicker',
+                        'title' => 'Choose color',
+                        'module' => [
+                            'name' => 'wizard_colorpicker',
+                        ],
+                    ],
+                ],
             ],
         ],
         'description' => [
