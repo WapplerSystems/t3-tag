@@ -1,0 +1,131 @@
+/*
+ * Tag element chip UI for TYPO3 FormEngine.
+ * Integrates with Bootstrap 5 and TYPO3's CSS custom properties.
+ */
+
+/* ── Input area ─────────────────────────────────────────────────────────── */
+
+.tag-element-input-area {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  min-height: 38px;
+  border: 1px solid var(--bs-border-color, #adb5bd);
+  border-radius: var(--bs-border-radius, 4px);
+  background-color: var(--bs-body-bg, #fff);
+  cursor: text;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.tag-element-input-area:focus-within {
+  border-color: var(--bs-primary, #0078d4);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 120, 212, 0.25);
+}
+
+/* ── Chips container ─────────────────────────────────────────────────────── */
+
+.tag-element-chips {
+  display: contents; /* chips flow directly into the flex parent */
+}
+
+/* ── Individual chip ─────────────────────────────────────────────────────── */
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 10px;
+  border-radius: 20px;
+  background-color: var(--bs-primary, #0078d4);
+  color: #fff;
+  font-size: 0.85em;
+  line-height: 1.5;
+  white-space: nowrap;
+  max-width: 220px;
+  flex-shrink: 0;
+}
+
+.tag-chip-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chip remove button ──────────────────────────────────────────────────── */
+
+.tag-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.tag-chip-remove:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.tag-chip-remove:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}
+
+/* ── Read-only variant ───────────────────────────────────────────────────── */
+
+.tag-element-chips-readonly {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.tag-chip--readonly {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background-color: var(--bs-secondary, #6c757d);
+  color: #fff;
+  font-size: 0.85em;
+  line-height: 1.5;
+}
+
+/* ── Suggest input inside the chip area ─────────────────────────────────── */
+
+.tag-element-suggest-wrap {
+  flex: 1;
+  min-width: 140px;
+}
+
+.tag-element-suggest-wrap .t3-form-suggest-container {
+  position: relative;
+}
+
+.tag-element-suggest-wrap .t3-form-suggest {
+  display: block;
+  width: 100%;
+  padding: 2px 4px;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  background: transparent;
+  font-size: inherit;
+  color: inherit;
+}
+
+.tag-element-suggest-wrap .t3-form-suggest:focus {
+  box-shadow: none;
+  outline: none;
+}
