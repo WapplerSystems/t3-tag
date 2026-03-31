@@ -1,10 +1,5 @@
 <?php
 
-use TYPO3\CMS\Backend\Controller;
+declare(strict_types=1);
 
-return [
-    'tag_create' => [
-        'path' => '/tag/create',
-        'target' => Controller\FormTagAjaxController::class . '::createAction',
-    ],
-];
+return [];
