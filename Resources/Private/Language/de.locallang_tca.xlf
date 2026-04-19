@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" target-language="de" datatype="plaintext" original="EXT:tagging/Resources/Private/Language/locallang_tca.xlf" date="2011-10-17T20:22:34Z" product-name="lang">
+		<header/>
+		<body>
+			<trans-unit id="sys_tag" resname="sys_tag">
+				<source>Tag</source>
+				<target>Schlagwort</target>
+			</trans-unit>
+			<trans-unit id="sys_tag.title" resname="sys_tag.title">
+				<source>Title</source>
+				<target>Titel</target>
+			</trans-unit>
+			<trans-unit id="sys_tag.color" resname="sys_tag.color">
+				<source>Color</source>
+				<target>Farbe</target>
+			</trans-unit>
+			<trans-unit id="sys_tag.description" resname="sys_tag.description">
+				<source>Description</source>
+				<target>Beschreibung</target>
+			</trans-unit>
+			<trans-unit id="sys_tag.items" resname="sys_tag.items">
+				<source>Items</source>
+				<target>Einträge</target>
+			</trans-unit>
+			<trans-unit id="sys_tag.tags" resname="sys_tag.tags">
+				<source>Tags</source>
+				<target>Schlagwörter</target>
+			</trans-unit>
+			<trans-unit id="sys_tag.tabs.tag" resname="sys_tag.tabs.tag">
+				<source>Tags</source>
+				<target>Schlagwörter</target>
+			</trans-unit>
+			<trans-unit id="sys_tag.tabs.items" resname="sys_tag.tabs.items">
+				<source>Items</source>
+				<target>Einträge</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

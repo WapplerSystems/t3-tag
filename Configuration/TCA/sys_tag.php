@@ -130,21 +130,8 @@ return [
         'color' => [
             'label' => 'LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:sys_tag.color',
             'config' => [
-                'type' => 'input',
-                'renderType' => 'colorpicker',
-                'size' => 7,
-                'max' => 7,
-                'eval' => 'trim',
+                'type' => 'color',
                 'default' => '#FFFFFF',
-                'wizards' => [
-                    'colorpicker' => [
-                        'type' => 'colorpicker',
-                        'title' => 'Choose color',
-                        'module' => [
-                            'name' => 'wizard_colorpicker',
-                        ],
-                    ],
-                ],
             ],
         ],
         'description' => [
