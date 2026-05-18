@@ -20,6 +20,7 @@ namespace TYPO3\CMS\Backend\Controller;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
@@ -52,7 +53,8 @@ readonly class FormTagAjaxController extends AbstractFormEngineAjaxController
         }
 
         // Verify HMAC – ties the request to table/field/pid as computed in TagElement::render()
-        $expectedHash = GeneralUtility::hmac($tableName . $fieldName . (string)$pid, 'FormTagCreate');
+        $expectedHash = GeneralUtility::makeInstance(HashService::class)
+            ->hmac($tableName . $fieldName . (string)$pid, 'FormTagCreate');
         if (!hash_equals($expectedHash, $signature)) {
             return new JsonResponse(['error' => 'Security check failed'], 403);
         }

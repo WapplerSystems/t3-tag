@@ -77,6 +77,7 @@ class TcaPreparationForTag
                 }
 
                 $fieldConfig['config']['type'] = 'group';
+                $fieldConfig['config']['renderType'] = 'tag';
                 $fieldConfig['config']['allowed'] = 'sys_tag';
 
                 // Force foreign_table for type tag

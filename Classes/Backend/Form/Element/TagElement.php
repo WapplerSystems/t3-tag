@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\Backend\Form\Element;
 
+use TYPO3\CMS\Core\Crypto\HashService;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -107,7 +108,8 @@ class TagElement extends AbstractFormElement
         }
 
         // HMAC ties the create-request to this exact table/field/pid combination
-        $signature = GeneralUtility::hmac($table . $fieldName . (string)$createPid, 'FormTagCreate');
+        $signature = GeneralUtility::makeInstance(HashService::class)
+            ->hmac($table . $fieldName . (string)$createPid, 'FormTagCreate');
 
         // Build existing selections
         $listOfSelectedValues = [];
@@ -284,7 +286,7 @@ class TagElement extends AbstractFormElement
 
         // Our tag element module replaces group-element.js entirely
         $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create(
-            '@wapplersystems/tag/backend/form-engine/element/tag-element.js'
+            '@tagging/backend/form-engine/element/tag-element.js'
         )->instance($fieldId, $elementName, $createPid, $signature);
 
         $resultArray['html'] = implode(LF, $html);
