@@ -161,6 +161,7 @@ class TagElement extends AbstractFormElement
         if (!$placeholder) {
             $placeholder = $languageService->sL('LLL:EXT:backend/Resources/Private/Language/locallang_alt_doc.xlf:search.find_record');
         }
+        $removeAriaLabel = $languageService->sL('LLL:EXT:tagging/Resources/Private/Language/locallang_tca.xlf:tag.remove_aria') ?: 'Remove tag';
 
         // FlexForm context (keep empty – tags are not typically used inside flex forms)
         $dataStructureIdentifier = '';
@@ -205,6 +206,7 @@ class TagElement extends AbstractFormElement
             . ' data-tablename="' . htmlspecialchars($table) . '"'
             . ' data-fieldname="' . htmlspecialchars($fieldName) . '"'
             . ' data-signature="' . htmlspecialchars($signature) . '"'
+            . ' data-remove-label="' . htmlspecialchars($removeAriaLabel) . '"'
             . '>';
 
         // Input area: chips + suggest input side by side
@@ -215,7 +217,8 @@ class TagElement extends AbstractFormElement
         foreach ($selectedItemsData as $item) {
             $html[] =         '<span class="tag-chip" data-value="' . htmlspecialchars($item['value']) . '">';
             $html[] =           '<span class="tag-chip-title">' . htmlspecialchars($item['title']) . '</span>';
-            $html[] =           '<button type="button" class="tag-chip-remove" aria-label="Remove tag"'
+            $html[] =           '<button type="button" class="tag-chip-remove"'
+                . ' aria-label="' . htmlspecialchars($removeAriaLabel) . '"'
                 . ' data-value="' . htmlspecialchars($item['value']) . '">&#x2715;</button>';
             $html[] =         '</span>';
         }

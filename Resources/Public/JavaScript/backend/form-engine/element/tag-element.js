@@ -37,6 +37,7 @@ class TagElement {
       this.chipsEl = document.getElementById(this.fieldId + '-chips');
       this.selectEl = document.getElementById(this.fieldId);
       this.suggestInput = this.wrapEl.querySelector('.t3-form-suggest');
+      this.removeLabel = this.wrapEl.dataset.removeLabel || 'Remove tag';
 
       // Locate the submission hidden input via the form's named-element API
       // to avoid CSS selector escaping issues with names like data[table][uid][field].
@@ -103,7 +104,7 @@ class TagElement {
     const removeBtn = document.createElement('button');
     removeBtn.type = 'button';
     removeBtn.className = 'tag-chip-remove';
-    removeBtn.setAttribute('aria-label', 'Remove tag');
+    removeBtn.setAttribute('aria-label', this.removeLabel);
     removeBtn.dataset.value = value;
     removeBtn.innerHTML = '&#x2715;';
 

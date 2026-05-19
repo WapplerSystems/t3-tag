@@ -35,6 +35,14 @@
 				<source>Items</source>
 				<target>Einträge</target>
 			</trans-unit>
+			<trans-unit id="tag.suggest_placeholder" resname="tag.suggest_placeholder">
+				<source>Add tag…</source>
+				<target>Schlagwort hinzufügen…</target>
+			</trans-unit>
+			<trans-unit id="tag.remove_aria" resname="tag.remove_aria">
+				<source>Remove tag</source>
+				<target>Schlagwort entfernen</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -30,6 +30,9 @@
 			<trans-unit id="tag.suggest_placeholder" resname="tag.suggest_placeholder">
 				<source>Add tag…</source>
 			</trans-unit>
+			<trans-unit id="tag.remove_aria" resname="tag.remove_aria">
+				<source>Remove tag</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
