@@ -85,7 +85,6 @@ class TagElement extends AbstractFormElement
     {
         $languageService = $this->getLanguageService();
         $resultArray = $this->initializeResultArray();
-        $resultArray['labelHasBeenHandled'] = true;
 
         $table = $this->data['tableName'];
         $fieldName = $this->data['fieldName'];
